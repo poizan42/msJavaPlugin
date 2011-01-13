@@ -1,0 +1,18 @@
+Type encoding:
+function pointer: big endian int32 identifier
+(unsigned) char: single byte
+(unsigned) int: big endian int32
+float: IEEE 754 single precision floating point
+(unsigned) char*: Java modified UTF8 string
+bool: byte
+
+java -> native:
+be int32 CommandType
+... arguments
+
+native -> java:
+be int32 Function
+Function:
+  -1: init
+  -2: shutdown
+otherwise any registered callback
