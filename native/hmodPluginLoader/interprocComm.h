@@ -59,40 +59,60 @@ inline size_t WRITE(HANDLE fd, const void *buf, size_t count)
 
 namespace ClientCommand {
   enum ClientCommandType {
-    intercom_return = 0,
+	intercom_return,
 
-    user_teleport,
-    user_getPosition,
-    user_sethealth,
-
-    chat_sendmsgTo,
-    chat_sendmsg,
-    chat_sendUserlist,
+	plugin_hasPluginVersion,
+	plugin_getPluginVersion,
+	plugin_setPluginVersion,
+	plugin_remPluginVersion,
+	
+	plugin_hasPointer,
+	plugin_getPointer,
+	plugin_setPointer,
+	plugin_remPointer,
+	
+	plugin_hasHook,
+	plugin_getHook,
+	plugin_setHook,
+	plugin_remHook,
+	
+	plugin_hasCallback,
+	plugin_addCallback,
+	plugin_remCallback,
+	plugin_doUntilTrue,
+	plugin_doUntilFalse,
+	plugin_doAll,
+	
+	user_teleport,
+	user_getPosition,
+	user_sethealth,
+	
+	chat_sendmsgTo,
+	chat_sendmsg,
+	chat_sendUserlist,
 
     logger_log,
-
-    map_createPickupSpawn,
-    map_setTime,
-    map_getSpawn,
-    map_getBlock,
-    map_setBlock,
-    map_saveWholeMap,
-    map_getMapData_block,
-    map_getMapData_meta,
-    map_getMapData_skylight,
-    map_getMapData_blocklight,
-
-    config_has,
-    config_iData,
-    config_lData,
-    config_fData,
-    config_dData,
-    config_sData,
-    config_bData,
-
-    plugin_getPluginVersion,
-    plugin_setPluginVersion,
-    plugin_addCallback,
+	
+	map_createPickupSpawn,
+	map_setTime,
+	map_getSpawn,
+	map_getBlock,
+	map_setBlock,
+	map_saveWholeMap,
+	map_getMapData,
+	
+	getMapData_block,
+	getMapData_meta,
+	getMapData_skylight,
+	getMapData_blocklight,
+	
+	config_has,
+	config_iData,
+	config_lData,
+	config_fData,
+	config_dData,
+	config_sData,
+	config_bData
   };
 }
 
@@ -119,6 +139,8 @@ public:
   int8_t readInt8(void);
   float readFloat(void);
   std::string readString(void);
+
+  void handleCommands(void);
 private:
   FD_T out;  
   FD_T in;

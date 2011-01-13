@@ -6,6 +6,8 @@
   #include <arpa/inet.h>
 #endif
 
+#include "hModPluginLoader.h"
+
 InterprocComm::InterprocComm(FD_T inArg, FD_T outArg)
 {
   in = inArg;
@@ -77,4 +79,25 @@ std::string InterprocComm::readString()
   std::string s(sc);
   delete sc;
   return s;
+}
+
+void InterprocComm::handleCommands(void)
+{
+  while (true)
+  {
+    ClientCommandType cmd = (ClientCommandType)readInt32();
+    switch (cmd)
+    {
+      case ClientCommand::intercom_return:
+        return; //return value should be read by caller if expected
+      case ClientCommand::logger_log:
+        int32_t type = readInt32();
+        std::string source = readString();
+        std::string message = readString();
+        hModPluginLoader::get()->getMineserver()->logger.log(
+          type, source.c_str(), message.c_str()
+        );
+        break;
+    }
+  }
 }

@@ -35,7 +35,7 @@ PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_init(mineserver_pointer_s
 
 PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_shutdown(void)
 {
-	delete hModPluginLoader::getInstance();
+	delete hModPluginLoader::get();
 }
 
 #ifdef WIN32
@@ -131,7 +131,7 @@ hModPluginLoader::hModPluginLoader(mineserver_pointer_struct* mineserver)
     }
 #else
     pid_t cpid;
-    pipe(pfd) //!= -1
+    pipe(pfd); //!= -1
     cpid = fork(); //!= -1
     if (cpid == 0) {    /* Child reads from pipe */
         close(stdinP[1]); // Close unused write end of stdin
@@ -147,7 +147,7 @@ hModPluginLoader::hModPluginLoader(mineserver_pointer_struct* mineserver)
 #endif
     //call init
     ic->writeInt32(ServerCommand::init);
-    handleCommands();
+    ic->handleCommands();
 }
 
 hModPluginLoader::~hModPluginLoader(void)
@@ -155,25 +155,6 @@ hModPluginLoader::~hModPluginLoader(void)
   delete ic;
   mineserver->logger.log(LogType::LOG_INFO, PLUGIN_NAME,
 		"Unloaded "PLUGIN_NAME" v."PLUGIN_VERSION_STR);
-}
-
-void hModPluginLoader::handleCommands(void)
-{
-  while (true)
-  {
-    ClientCommandType cmd = (ClientCommandType)ic->readInt32();
-    switch (cmd)
-    {
-      case ClientCommand::intercom_return:
-        return; //return value should be read by caller if expected
-      case ClientCommand::logger_log:
-        int32_t type = ic->readInt32();
-        std::string source = ic->readString();
-        std::string message = ic->readString();
-        mineserver->logger.log(type, source.c_str(), message.c_str());
-        break;
-    }
-  }
 }
 
 hModPluginLoader* hModPluginLoader::instance;

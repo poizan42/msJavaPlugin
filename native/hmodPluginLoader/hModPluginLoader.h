@@ -24,12 +24,12 @@ inline std::string itos(int n)
 class hModPluginLoader
 {
 public:
-	inline static hModPluginLoader* getInstance(void) {return instance;};
+	inline static hModPluginLoader* get(void) {return instance;};
+    inline mineserver_pointer_struct* getMineserver(void) {return mineserver;};
 	hModPluginLoader(mineserver_pointer_struct* mineserver);
 	~hModPluginLoader(void);
 private:
 	static hModPluginLoader* instance;
-    void hModPluginLoader::handleCommands(void);
 	mineserver_pointer_struct* mineserver;
     InterprocComm* ic;
 };
