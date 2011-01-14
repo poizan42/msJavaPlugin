@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 import sys,re
 
-stringType = ('std::string', 'String', lambda x: x+'.c_str()')
 id = lambda x:x
 
 ntypes = {
-	'unsigned char*': stringType,
-	'char*': stringType,
-	'const char*': stringType,
+	'const char*': ('std::string', 'String', lambda x: x+'.c_str()'),
 	'float': ('float', 'Float', id),
 	'double': ('double', 'Double', id),
 	'int': ('int32_t', 'Int32', id),

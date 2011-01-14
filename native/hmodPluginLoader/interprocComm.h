@@ -132,12 +132,16 @@ public:
   void writeInt16(int16_t i);
   void writeInt8(int8_t i);
   void writeFloat(float f);
+  void writeDouble(double f);
+  void writeBool(bool b);
   void writeString(std::string s);
 
   int32_t readInt32(void);
   int16_t readInt16(void);
   int8_t readInt8(void);
   float readFloat(void);
+  double readDouble(void);
+  bool readBool(void);
   std::string readString(void);
 
   void handleCommands(void);

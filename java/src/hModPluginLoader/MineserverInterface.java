@@ -61,58 +61,110 @@ public class MineserverInterface {
 		}
 	}
 	
-	private void _intercom_return() throws IOException
+	private void IOError()
 	{
-		outStream.writeInt(ClientCommand.intercom_return.ordinal());
-	}
-	
-	public void intercom_return() throws IOException
-	{
-		_intercom_return();
-		outStream.flush();
-	}
-	
-	public void intercom_return(int retval) throws IOException
-	{
-		_intercom_return();
-		outStream.writeInt(retval);
-		outStream.flush();
-	}
-	
-	public void intercom_return(short retval) throws IOException
-	{
-		_intercom_return();
-		outStream.writeShort(retval);
-		outStream.flush();
+		System.err.println("Connection to host lost. Shutting down.");
+		System.exit(-1);
 	}
 
-	public void intercom_return(byte retval) throws IOException
+	private void flush() {
+		try {outStream.flush();}catch (IOException e){IOError();}}
+	private String readString() {
+		try {return inStream.readUTF();}catch (IOException e){IOError();}
+		return null;}
+	private int readInt() {
+		try {return inStream.readInt();}catch (IOException e){IOError();}
+		return 0;}
+	private short readShort() {
+		try {return inStream.readShort();}catch (IOException e){IOError();}
+		return 0;}
+	private byte readByte() {
+		try {return inStream.readByte();}catch (IOException e){IOError();}
+		return 0;}
+	private boolean readBool() {
+		try {return inStream.readBoolean();}catch (IOException e){IOError();}
+		return false;}
+	private float readFloat() {
+		try {return inStream.readFloat();}catch (IOException e){IOError();}
+		return 0;}
+	private double readDouble() {
+		try {return inStream.readDouble();}catch (IOException e){IOError();}
+		return 0;}
+	
+	private void writeString(String v) {
+		try {outStream.writeUTF(v);}catch (IOException e){IOError();}}
+	private void writeInt(int v) {
+		try {outStream.writeInt(v);}catch (IOException e){IOError();}}
+	private void writeShort(short v) {
+		try {outStream.writeShort(v);}catch (IOException e){IOError();}}
+	private void writeByte(byte v) {
+		try {outStream.writeByte(v);}catch (IOException e){IOError();}}
+	private void writeBool(boolean v) {
+		try {outStream.writeBoolean(v);}catch (IOException e){IOError();}}
+	private void writeFloat(Float v) {
+		try {outStream.writeFloat(v);}catch (IOException e){IOError();}}
+	private void writeDouble(Double v) {
+		try {outStream.writeDouble(v);}catch (IOException e){IOError();}}
+	
+	private void _intercom_return()
 	{
-		_intercom_return();
-		outStream.writeByte(retval);
-		outStream.flush();
+		writeInt(ClientCommand.intercom_return.ordinal());
 	}
 	
-	public void intercom_return(float retval) throws IOException
+	public void intercom_return()
 	{
 		_intercom_return();
-		outStream.writeFloat(retval);
-		outStream.flush();
+		flush();
 	}
 	
-	public void intercom_return(String retval) throws IOException
+	public void intercom_return(int retval)
 	{
 		_intercom_return();
-		outStream.writeUTF(retval);
-		outStream.flush();
+		writeInt(retval);
+		flush();
 	}
 	
-	public void logger_log(LogType type, String source, String message) throws IOException
+	public void intercom_return(short retval)
 	{
-		outStream.writeInt(ClientCommand.logger_log.ordinal());
-		outStream.writeInt(type.ordinal());
-		outStream.writeUTF(source);
-		outStream.writeUTF(message);
-		outStream.flush();
+		_intercom_return();
+		writeShort(retval);
+		flush();
+	}
+
+	public void intercom_return(byte retval)
+	{
+		_intercom_return();
+		writeByte(retval);
+		flush();
+	}
+	
+	public void intercom_return(float retval)
+	{
+		_intercom_return();
+		writeFloat(retval);
+		flush();
+	}
+
+	public void intercom_return(double retval)
+	{
+		_intercom_return();
+		writeDouble(retval);
+		flush();
+	}
+	
+	public void intercom_return(String retval)
+	{
+		_intercom_return();
+		writeString(retval);
+		flush();
+	}
+	
+	public void logger_log(LogType type, String source, String message)
+	{
+		writeInt(ClientCommand.logger_log.ordinal());
+		writeInt(type.ordinal());
+		writeString(source);
+		writeString(message);
+		flush();
 	}
 }
