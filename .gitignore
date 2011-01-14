@@ -3,3 +3,6 @@ native/*.sdf
 native/Debug
 native/ipch
 native/hmodPluginLoader/Debug
+enum
+jcode
+ncode
