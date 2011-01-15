@@ -46,7 +46,7 @@ public class MSJavaPlugin {
 	public void init() throws IOException
 	{
 		MineserverInterface mi = MineserverInterface.getInstance();
-		mi.logger_log(LogType.LOG_INFO, "hModPluginLoader-java",
-				"hModPluginLoader java side loaded.");
+		mi.logger_log(LogType.LOG_INFO, "msJavaPlugin-java",
+				"msJavaPlugin java side loaded.");
 	}
 }

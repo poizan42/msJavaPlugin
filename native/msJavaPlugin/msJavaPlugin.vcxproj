@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{716C9E38-4043-4D42-A406-9C586DBBE4A1}</ProjectGuid>
-    <RootNamespace>hmodPluginLoader</RootNamespace>
-    <ProjectName>hModPluginLoader</ProjectName>
+    <RootNamespace>msJavaPlugin</RootNamespace>
+    <ProjectName>msJavaPlugin</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -66,11 +66,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="hModPluginLoader.h" />
+    <ClInclude Include="msJavaPlugin.h" />
     <ClInclude Include="interprocComm.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hModPluginLoader.cpp" />
+    <ClCompile Include="msJavaPlugin.cpp" />
     <ClCompile Include="interprocComm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

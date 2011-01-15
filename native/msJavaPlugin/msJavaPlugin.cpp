@@ -16,8 +16,8 @@
 #define _QUOTE_STR__(x) #x
 #define _QUOTE_STR_(x) _QUOTE_STR__(x)
 #define PLUGIN_VERSION_STR _QUOTE_STR_(PLUGIN_VERSION) 
-#define PLUGIN_NAME "hModPluginLoader"
-#define JAVA_CLASS_NAME "hModPluginLoader.hModPluginLoader"
+#define PLUGIN_NAME "msJavaPlugin"
+#define JAVA_CLASS_NAME "msJavaPlugin.MSJavaPlugin"
 #define SOCKET_PORT 38830
 
 PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_init(mineserver_pointer_struct* mineserver)

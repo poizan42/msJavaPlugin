@@ -105,7 +105,7 @@ std::string InterprocComm::readString()
 
 void InterprocComm::handleCommands(void)
 {
-  mineserver_pointer_struct* ms = hModPluginLoader::get()->getMineserver();
+  mineserver_pointer_struct* ms = MSJavaPlugin::get()->getMineserver();
   while (true)
   {
     ClientCommandType cmd = (ClientCommandType)readInt32();
