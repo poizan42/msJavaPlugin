@@ -1,4 +1,4 @@
-package hModPluginLoader;
+package msJavaPlugin;
 
 public enum LogType {
 	LOG_EMERG,    /** system is unusable */

@@ -1,4 +1,4 @@
-package hModPluginLoader;
+package msJavaPlugin;
 
 public enum ClientCommand {
 	intercom_return,

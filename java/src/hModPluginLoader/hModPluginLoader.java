@@ -1,8 +1,8 @@
-package hModPluginLoader;
+package msJavaPlugin;
 
 import java.io.IOException;
 
-public class hModPluginLoader {
+public class MSJavaPlugin {
 
 	/**
 	 * @param args
@@ -39,7 +39,7 @@ public class hModPluginLoader {
 			}
 		}
 		MineserverInterface mi = new MineserverInterface(
-				new hModPluginLoader(), usePipes, port);
+				new MSJavaPlugin(), usePipes, port);
 		mi.runCommandLoop();
 	}
 

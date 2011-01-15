@@ -21,15 +21,15 @@ inline std::string itos(int n)
 	return result.str();
 }
 
-class hModPluginLoader
+class MSJavaPlugin
 {
 public:
-	inline static hModPluginLoader* get(void) {return instance;};
+	inline static MSJavaPlugin* get(void) {return instance;};
     inline mineserver_pointer_struct* getMineserver(void) {return mineserver;};
-	hModPluginLoader(mineserver_pointer_struct* mineserver);
-	~hModPluginLoader(void);
+	MSJavaPlugin(mineserver_pointer_struct* mineserver);
+	~MSJavaPlugin(void);
 private:
-	static hModPluginLoader* instance;
+	static MSJavaPlugin* instance;
 	mineserver_pointer_struct* mineserver;
     InterprocComm* ic;
 };

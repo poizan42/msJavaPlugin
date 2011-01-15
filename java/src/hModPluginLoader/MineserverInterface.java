@@ -1,4 +1,4 @@
-package hModPluginLoader;
+package msJavaPlugin;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,9 +18,9 @@ public class MineserverInterface {
 	private static MineserverInterface instance;
 	private DataOutputStream outStream;
 	private DataInputStream inStream;
-	private hModPluginLoader loader;
+	private MSJavaPlugin loader;
 
-	public MineserverInterface(hModPluginLoader l, boolean usePipes, int port) throws IOException
+	public MineserverInterface(MSJavaPlugin l, boolean usePipes, int port) throws IOException
 	{
 		instance = this;
 		this.loader = l;

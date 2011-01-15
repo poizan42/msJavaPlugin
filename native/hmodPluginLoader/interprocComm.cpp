@@ -6,7 +6,7 @@
   #include <arpa/inet.h>
 #endif
 
-#include "hModPluginLoader.h"
+#include "msJavaPlugin.h"
 
 InterprocComm::InterprocComm(FD_T inArg, FD_T outArg)
 {

@@ -1,4 +1,4 @@
-#include "hModPluginLoader.h"
+#include "msJavaPlugin.h"
 
 #ifdef WIN32
   #include <windows.h>
@@ -30,12 +30,12 @@ PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_init(mineserver_pointer_s
 		return;
 	}
     mineserver->plugin.setPluginVersion(PLUGIN_NAME, PLUGIN_VERSION);
-    new hModPluginLoader(mineserver);
+    new MSJavaPlugin(mineserver);
 }
 
 PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_shutdown(void)
 {
-	delete hModPluginLoader::get();
+	delete MSJavaPlugin::get();
 }
 
 #ifdef WIN32
@@ -63,7 +63,7 @@ inline std::string getLastErrorMessageSock()
 }
 #endif
 
-hModPluginLoader::hModPluginLoader(mineserver_pointer_struct* mineserver)
+MSJavaPlugin::MSJavaPlugin(mineserver_pointer_struct* mineserver)
 {
 	instance = this;
 	this->mineserver = mineserver;
@@ -150,11 +150,11 @@ hModPluginLoader::hModPluginLoader(mineserver_pointer_struct* mineserver)
     ic->handleCommands();
 }
 
-hModPluginLoader::~hModPluginLoader(void)
+MSJavaPlugin::~MSJavaPlugin(void)
 {
   delete ic;
   mineserver->logger.log(LogType::LOG_INFO, PLUGIN_NAME,
 		"Unloaded "PLUGIN_NAME" v."PLUGIN_VERSION_STR);
 }
 
-hModPluginLoader* hModPluginLoader::instance;
+MSJavaPlugin* MSJavaPlugin::instance;
