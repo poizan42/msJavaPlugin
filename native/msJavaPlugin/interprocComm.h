@@ -128,6 +128,7 @@ class InterprocComm
 public:
   InterprocComm(FD_T in, FD_T out);
 
+  void writeInt64(int64_t i);
   void writeInt32(int32_t i);
   void writeInt16(int16_t i);
   void writeInt8(int8_t i);
@@ -136,6 +137,7 @@ public:
   void writeBool(bool b);
   void writeString(std::string s);
 
+  int64_t readInt64(void);
   int32_t readInt32(void);
   int16_t readInt16(void);
   int8_t readInt8(void);

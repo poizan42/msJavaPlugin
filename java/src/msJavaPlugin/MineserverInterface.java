@@ -79,6 +79,9 @@ public class MineserverInterface {
 	private String readString() {
 		try {return inStream.readUTF();}catch (IOException e){IOError();}
 		return null;}
+	private long readLong() {
+		try {return inStream.readLong();}catch (IOException e){IOError();}
+		return 0;}
 	private int readInt() {
 		try {return inStream.readInt();}catch (IOException e){IOError();}
 		return 0;}
@@ -103,6 +106,8 @@ public class MineserverInterface {
 	
 	private void writeString(String v) {
 		try {outStream.writeUTF(v);}catch (IOException e){IOError();}}
+	private void writeLong(long v) {
+		try {outStream.writeLong(v);}catch (IOException e){IOError();}}
 	private void writeInt(int v) {
 		try {outStream.writeInt(v);}catch (IOException e){IOError();}}
 	private void writeShort(int v) {
@@ -177,9 +182,25 @@ public class MineserverInterface {
 		writeString(message);
 		flush();
 	}
+	/*getPointer/setPointer probably not very useful
+	  for java plugins. But here they are: */
+	public long plugin_getPointer(String name)
+	{
+		writeInt(ClientCommand.plugin_getPointer.ordinal());
+		writeString(name);
+		flush();
+		return readLong();
+	}
+	
+	public void plugin_setPointer(String name, long pointer)
+	{
+		writeInt(ClientCommand.plugin_setPointer.ordinal());
+		writeString(name);
+		writeLong(pointer);
+		flush();
+	}
 	
 	//*************** codegen.py output below ***************
-	
 	public boolean plugin_hasPluginVersion(String name)
 	{
 		writeInt(ClientCommand.plugin_hasPluginVersion.ordinal());
@@ -234,12 +255,48 @@ public class MineserverInterface {
 		return readBool();
 	}
 
+//  Hook* (*getHook)(const char* hookID);
+//struct="plugin", ret="Hook*", name="getHook", args=[('const char*', 'hookID')]
+//Unknown return type: "Hook*". Not generating code!
+
+//  void  (*setHook)(const char* hookID, Hook* hook);
+//struct="plugin", ret="void", name="setHook", args=[('const char*', 'hookID'), ('Hook*', 'hook')]
+//Unknown argument type: "Hook*" for argument "hook". Not generating code!
+
 	public void plugin_remHook(String hookID)
 	{
 		writeInt(ClientCommand.plugin_remHook.ordinal());
 		writeString(hookID);
 		flush();
 	}
+
+//  bool (*hasCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="bool", name="hasCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  void (*addCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="void", name="addCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  void (*addIdentifiedCallback)(const char* hookID, void* identifier, void* function);
+//struct="plugin", ret="void", name="addIdentifiedCallback", args=[('const char*', 'hookID'), ('void*', 'identifier'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "identifier". Not generating code!
+
+//  void (*remCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="void", name="remCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  bool (*doUntilTrue)          (const char* hookID, ...);
+//struct="plugin", ret="bool", name="doUntilTrue", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
+
+//  bool (*doUntilFalse)         (const char* hookID, ...);
+//struct="plugin", ret="bool", name="doUntilFalse", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
+
+//  void (*doAll)                (const char* hookID, ...);
+//struct="plugin", ret="void", name="doAll", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
 
 	public boolean user_teleport(String user, double x, double y, double z)
 	{
@@ -360,6 +417,22 @@ public class MineserverInterface {
 		flush();
 	}
 
+//  unsigned char* (*getMapData_block)(int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_block", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_meta) (int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_meta", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_skylight)  (int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_skylight", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_blocklight)(int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_blocklight", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
 	public boolean config_has(String name)
 	{
 		writeInt(ClientCommand.config_has.ordinal());
@@ -374,6 +447,14 @@ public class MineserverInterface {
 		writeString(name);
 		flush();
 		return readInt();
+	}
+
+	public long config_lData(String name)
+	{
+		writeInt(ClientCommand.config_lData.ordinal());
+		writeString(name);
+		flush();
+		return readLong();
 	}
 
 	public float config_fData(String name)

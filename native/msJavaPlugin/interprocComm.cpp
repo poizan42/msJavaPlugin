@@ -14,6 +14,14 @@ InterprocComm::InterprocComm(FD_T inArg, FD_T outArg)
   out = outArg;
 }
 
+void InterprocComm::writeInt64(int64_t i)
+{
+  int32_t ih = (int32_t)(i >> 32);
+  int32_t il = (int32_t)(i & 0xFFFFFFFF);
+  WRITE(out, &ih, 4);
+  WRITE(out, &il, 4);
+}
+
 void InterprocComm::writeInt32(int32_t i)
 {
   int32_t ib = htonl(i);
@@ -50,6 +58,15 @@ void InterprocComm::writeString(std::string s)
 {
   writeInt16(s.length());
   WRITE(out, s.c_str(), s.length());
+}
+
+int64_t InterprocComm::readInt64()
+{
+  int32_t ih;
+  int32_t il;
+  READ(in, &ih, 4);
+  READ(in, &il, 4);
+  return (int64_t)ih << 32 | (int64_t)il;
 }
 
 int32_t InterprocComm::readInt32()
@@ -123,6 +140,23 @@ void InterprocComm::handleCommands(void)
         );
         break;
       }
+      /*getPointer/setPointer probably not very useful
+        for java plugins. But here they are:
+      */
+      case ClientCommand::plugin_getPointer: 
+      {
+        std::string name = readString();
+        void* retval = ms->plugin.getPointer(name.c_str());
+        writeInt64((int64_t)retval);
+        break;
+      }
+      case ClientCommand::plugin_setPointer: 
+      {
+        std::string name = readString();
+        void* pointer = (void*)readInt64();
+        ms->plugin.setPointer(name.c_str(), pointer);
+        break;
+      }
 
       //*************** codegen.py output below ***************
       case ClientCommand::plugin_hasPluginVersion:
@@ -172,12 +206,48 @@ void InterprocComm::handleCommands(void)
         writeBool(retval);
         break;
       }
+//  Hook* (*getHook)(const char* hookID);
+//struct="plugin", ret="Hook*", name="getHook", args=[('const char*', 'hookID')]
+//Unknown return type: "Hook*". Not generating code!
+
+//  void  (*setHook)(const char* hookID, Hook* hook);
+//struct="plugin", ret="void", name="setHook", args=[('const char*', 'hookID'), ('Hook*', 'hook')]
+//Unknown argument type: "Hook*" for argument "hook". Not generating code!
+
       case ClientCommand::plugin_remHook:
       {
         std::string hookID = readString();
         ms->plugin.remHook(hookID.c_str());
         break;
       }
+//  bool (*hasCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="bool", name="hasCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  void (*addCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="void", name="addCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  void (*addIdentifiedCallback)(const char* hookID, void* identifier, void* function);
+//struct="plugin", ret="void", name="addIdentifiedCallback", args=[('const char*', 'hookID'), ('void*', 'identifier'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "identifier". Not generating code!
+
+//  void (*remCallback)          (const char* hookID, void* function);
+//struct="plugin", ret="void", name="remCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
+//Unknown argument type: "void*" for argument "function". Not generating code!
+
+//  bool (*doUntilTrue)          (const char* hookID, ...);
+//struct="plugin", ret="bool", name="doUntilTrue", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
+
+//  bool (*doUntilFalse)         (const char* hookID, ...);
+//struct="plugin", ret="bool", name="doUntilFalse", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
+
+//  void (*doAll)                (const char* hookID, ...);
+//struct="plugin", ret="void", name="doAll", args=[('const char*', 'hookID'), ('', '...')]
+//Unknown argument type: "" for argument "...". Not generating code!
+
       case ClientCommand::user_teleport:
       {
         std::string user = readString();
@@ -296,6 +366,22 @@ void InterprocComm::handleCommands(void)
         ms->map.saveWholeMap();
         break;
       }
+//  unsigned char* (*getMapData_block)(int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_block", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_meta) (int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_meta", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_skylight)  (int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_skylight", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
+//  unsigned char* (*getMapData_blocklight)(int x, int z);
+//struct="map", ret="unsigned char*", name="getMapData_blocklight", args=[('int', 'x'), ('int', 'z')]
+//Unknown return type: "unsigned char*". Not generating code!
+
       case ClientCommand::config_has:
       {
         std::string name = readString();
@@ -308,6 +394,13 @@ void InterprocComm::handleCommands(void)
         std::string name = readString();
         int32_t retval = ms->config.iData(name.c_str());
         writeInt32(retval);
+        break;
+      }
+      case ClientCommand::config_lData:
+      {
+        std::string name = readString();
+        int64_t retval = ms->config.lData(name.c_str());
+        writeInt64(retval);
         break;
       }
       case ClientCommand::config_fData:
@@ -338,7 +431,7 @@ void InterprocComm::handleCommands(void)
         writeBool(retval);
         break;
       }
-    }
 
+    }
   }
 }

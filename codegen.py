@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 import sys,re
 
-ignoreCmds = {('logger', 'log'): True}
+ignoreCmds = frozenset({
+	('logger', 'log'),
+	('plugin', 'getPointer'),
+	('plugin', 'setPointer'),
+})
 
 id = lambda x:x
 
@@ -9,6 +13,7 @@ ntypes = {
 	'const char*': ('std::string', 'String', lambda x: x+'.c_str()'),
 	'float': ('float', 'Float', id),
 	'double': ('double', 'Double', id),
+	'int64_t': ('int64_t', 'Int64', id),
 	'int': ('int32_t', 'Int32', id),
 	'short': ('int16_t', 'Int16', id),
 	'unsigned char': ('uint8_t', 'Int8', id),
@@ -20,6 +25,7 @@ jtypes = {
 	'std::string': ('String', 'String', 'String'),
 	'float': ('float', 'Float', 'Float'),
 	'double': ('double', 'Double', 'Double'),
+	'int64_t': ('long', 'Long', 'Long'),
 	'int32_t': ('int', 'Int', 'Int'),
 	'int16_t': ('short', 'Short', 'Short'),
 	'uint8_t': ('short', 'Byte', 'UnsignedByte'),
@@ -66,9 +72,10 @@ while i < len(lines):
 		if m == None:
 			i+=1
 			continue
+		rawline = m.group(0)
 		ret = m.group(1)
 		name = m.group(3)
-		if ignoreCmds.has_key((struct, name)):
+		if (struct, name) in ignoreCmds:
 			i+=1
 			continue
 		args = [[x.strip() for x in aDec.split()] for aDec in m.group(4).split(',')]
@@ -83,7 +90,8 @@ while i < len(lines):
 				args2.append(arg)
 		args = args2
 		
-		print 'struct="%s", ret="%s", name="%s", args=%s' % (struct,ret,name,args)
+		infoline = 'struct="%s", ret="%s", name="%s", args=%s' % (struct,ret,name,args)
+		print infoline
 		enumName = struct+'_'+name
 		enum.write(enumName+',\n')
 		nins = []
@@ -98,17 +106,22 @@ while i < len(lines):
 				nouts.append((ntypes[arg[0][:-1]], arg[1]))
 				nargs.append((ntypes[arg[0][:-1]], arg[1], "out"))
 			else:
-				print 'Unknown argument type: "'+arg[0]+'" for argument "'+arg[1]+'". Not generating code!'
-				i+=1
+				txt = 'Unknown argument type: "'+arg[0]+'" for argument "'+arg[1]+'". Not generating code!'
 				err = True
 				break
-		if err == True:
-			continue
 		try:
 			if ret != 'void':
 				nret = ntypes[ret]
 		except KeyError as e:
-			print 'Unknown return type: "'+ret+'". Not generating code!'
+			txt = 'Unknown return type: "'+ret+'". Not generating code!'
+			err = True
+		if err == True:
+			comments  = '//'+rawline+'\n'
+			comments += '//'+infoline+'\n'
+			comments += '//'+txt+'\n\n'
+			print txt
+			ncode.write(comments)
+			jcode.write(comments)
 			i+=1
 			continue
 		jins = [(jtypes[arg[0][0]], arg[1]) for arg in nins]
