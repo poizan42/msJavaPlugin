@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B5CF11EF-B4F0-4E9C-AC2D-4EB87E1C9DAC}</ProjectGuid>
+    <ProjectGuid>{716C9E38-4043-4D42-A406-9C586DBBE4A1}</ProjectGuid>
     <RootNamespace>hmodPluginLoader</RootNamespace>
     <ProjectName>hModPluginLoader</ProjectName>
   </PropertyGroup>

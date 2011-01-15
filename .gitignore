@@ -1,8 +1,9 @@
 java/bin
 native/*.sdf
+native/*.suo
 native/Debug
 native/ipch
-native/hmodPluginLoader/Debug
+native/msJavaPlugin/Debug
 enum
 jcode
 ncode
