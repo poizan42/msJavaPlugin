@@ -113,6 +113,18 @@ void InterprocComm::handleCommands(void)
     {
       case ClientCommand::intercom_return:
         return; //return value should be read by caller if expected
+      case ClientCommand::logger_log:
+      {
+        int32_t type = readInt32();
+        std::string source = readString();
+        std::string message = readString();
+        ms->logger.log(
+          type, source.c_str(), message.c_str()
+        );
+        break;
+      }
+
+      //*************** codegen.py output below ***************
       case ClientCommand::plugin_hasPluginVersion:
       {
         std::string name = readString();
@@ -138,18 +150,195 @@ void InterprocComm::handleCommands(void)
       {
         std::string name = readString();
         ms->plugin.remPluginVersion(name.c_str());
+        break;
       }
-
-      case ClientCommand::logger_log:
+      case ClientCommand::plugin_hasPointer:
       {
+        std::string name = readString();
+        bool retval = ms->plugin.hasPointer(name.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::plugin_remPointer:
+      {
+        std::string name = readString();
+        ms->plugin.remPointer(name.c_str());
+        break;
+      }
+      case ClientCommand::plugin_hasHook:
+      {
+        std::string hookID = readString();
+        bool retval = ms->plugin.hasHook(hookID.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::plugin_remHook:
+      {
+        std::string hookID = readString();
+        ms->plugin.remHook(hookID.c_str());
+        break;
+      }
+      case ClientCommand::user_teleport:
+      {
+        std::string user = readString();
+        double x = readDouble();
+        double y = readDouble();
+        double z = readDouble();
+        bool retval = ms->user.teleport(user.c_str(), x, y, z);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::user_getPosition:
+      {
+        std::string user = readString();
+        double x;
+        double y;
+        double z;
+        float yaw;
+        float pitch;
+        double stance;
+        bool retval = ms->user.getPosition(user.c_str(), &x, &y, &z, &yaw, &pitch, &stance);
+        writeDouble(x);
+        writeDouble(y);
+        writeDouble(z);
+        writeFloat(yaw);
+        writeFloat(pitch);
+        writeDouble(stance);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::user_sethealth:
+      {
+        std::string user = readString();
+        int32_t userHealth = readInt32();
+        bool retval = ms->user.sethealth(user.c_str(), userHealth);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::chat_sendmsgTo:
+      {
+        std::string user = readString();
+        std::string msg = readString();
+        bool retval = ms->chat.sendmsgTo(user.c_str(), msg.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::chat_sendmsg:
+      {
+        std::string msg = readString();
+        bool retval = ms->chat.sendmsg(msg.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::chat_sendUserlist:
+      {
+        std::string user = readString();
+        bool retval = ms->chat.sendUserlist(user.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::map_createPickupSpawn:
+      {
+        int32_t x = readInt32();
+        int32_t y = readInt32();
+        int32_t z = readInt32();
         int32_t type = readInt32();
-        std::string source = readString();
-        std::string message = readString();
-        ms->logger.log(
-          type, source.c_str(), message.c_str()
-        );
+        int32_t count = readInt32();
+        int32_t health = readInt32();
+        std::string user = readString();
+        ms->map.createPickupSpawn(x, y, z, type, count, health, user.c_str());
+        break;
+      }
+      case ClientCommand::map_setTime:
+      {
+        int32_t timeValue = readInt32();
+        bool retval = ms->map.setTime(timeValue);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::map_getSpawn:
+      {
+        int32_t x;
+        int32_t y;
+        int32_t z;
+        ms->map.getSpawn(&x, &y, &z);
+        writeInt32(x);
+        writeInt32(y);
+        writeInt32(z);
+        break;
+      }
+      case ClientCommand::map_getBlock:
+      {
+        int32_t x = readInt32();
+        int32_t y = readInt32();
+        int32_t z = readInt32();
+        uint8_t type;
+        uint8_t meta;
+        bool retval = ms->map.getBlock(x, y, z, &type, &meta);
+        writeInt8(type);
+        writeInt8(meta);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::map_setBlock:
+      {
+        int32_t x = readInt32();
+        int32_t y = readInt32();
+        int32_t z = readInt32();
+        uint8_t type = readInt8();
+        uint8_t meta = readInt8();
+        bool retval = ms->map.setBlock(x, y, z, type, meta);
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::map_saveWholeMap:
+      {
+        ms->map.saveWholeMap();
+        break;
+      }
+      case ClientCommand::config_has:
+      {
+        std::string name = readString();
+        bool retval = ms->config.has(name.c_str());
+        writeBool(retval);
+        break;
+      }
+      case ClientCommand::config_iData:
+      {
+        std::string name = readString();
+        int32_t retval = ms->config.iData(name.c_str());
+        writeInt32(retval);
+        break;
+      }
+      case ClientCommand::config_fData:
+      {
+        std::string name = readString();
+        float retval = ms->config.fData(name.c_str());
+        writeFloat(retval);
+        break;
+      }
+      case ClientCommand::config_dData:
+      {
+        std::string name = readString();
+        double retval = ms->config.dData(name.c_str());
+        writeDouble(retval);
+        break;
+      }
+      case ClientCommand::config_sData:
+      {
+        std::string name = readString();
+        std::string retval = ms->config.sData(name.c_str());
+        writeString(retval);
+        break;
+      }
+      case ClientCommand::config_bData:
+      {
+        std::string name = readString();
+        bool retval = ms->config.bData(name.c_str());
+        writeBool(retval);
         break;
       }
     }
+
   }
 }

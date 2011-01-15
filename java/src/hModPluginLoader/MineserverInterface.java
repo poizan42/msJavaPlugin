@@ -8,6 +8,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MineserverInterface {
+	public class ByRef_boolean {public boolean value;}
+	public class ByRef_byte {public byte value;}
+	public class ByRef_short {public short value;}
+	public class ByRef_int {public int value;}
+	public class ByRef_float {public float value;}
+	public class ByRef_double {public double value;}
+	
 	private static MineserverInterface instance;
 	private DataOutputStream outStream;
 	private DataInputStream inStream;
@@ -81,6 +88,9 @@ public class MineserverInterface {
 	private byte readByte() {
 		try {return inStream.readByte();}catch (IOException e){IOError();}
 		return 0;}
+	private short readUnsignedByte() {
+		try {return (short)inStream.readUnsignedByte();}catch (IOException e){IOError();}
+		return 0;}
 	private boolean readBool() {
 		try {return inStream.readBoolean();}catch (IOException e){IOError();}
 		return false;}
@@ -95,9 +105,9 @@ public class MineserverInterface {
 		try {outStream.writeUTF(v);}catch (IOException e){IOError();}}
 	private void writeInt(int v) {
 		try {outStream.writeInt(v);}catch (IOException e){IOError();}}
-	private void writeShort(short v) {
+	private void writeShort(int v) {
 		try {outStream.writeShort(v);}catch (IOException e){IOError();}}
-	private void writeByte(byte v) {
+	private void writeByte(short v) {
 		try {outStream.writeByte(v);}catch (IOException e){IOError();}}
 	private void writeBool(boolean v) {
 		try {outStream.writeBoolean(v);}catch (IOException e){IOError();}}
@@ -167,4 +177,235 @@ public class MineserverInterface {
 		writeString(message);
 		flush();
 	}
+	
+	//*************** codegen.py output below ***************
+	
+	public boolean plugin_hasPluginVersion(String name)
+	{
+		writeInt(ClientCommand.plugin_hasPluginVersion.ordinal());
+		writeString(name);
+		flush();
+		return readBool();
+	}
+
+	public float plugin_getPluginVersion(String name)
+	{
+		writeInt(ClientCommand.plugin_getPluginVersion.ordinal());
+		writeString(name);
+		flush();
+		return readFloat();
+	}
+
+	public void plugin_setPluginVersion(String name, float version)
+	{
+		writeInt(ClientCommand.plugin_setPluginVersion.ordinal());
+		writeString(name);
+		writeFloat(version);
+		flush();
+	}
+
+	public void plugin_remPluginVersion(String name)
+	{
+		writeInt(ClientCommand.plugin_remPluginVersion.ordinal());
+		writeString(name);
+		flush();
+	}
+
+	public boolean plugin_hasPointer(String name)
+	{
+		writeInt(ClientCommand.plugin_hasPointer.ordinal());
+		writeString(name);
+		flush();
+		return readBool();
+	}
+
+	public void plugin_remPointer(String name)
+	{
+		writeInt(ClientCommand.plugin_remPointer.ordinal());
+		writeString(name);
+		flush();
+	}
+
+	public boolean plugin_hasHook(String hookID)
+	{
+		writeInt(ClientCommand.plugin_hasHook.ordinal());
+		writeString(hookID);
+		flush();
+		return readBool();
+	}
+
+	public void plugin_remHook(String hookID)
+	{
+		writeInt(ClientCommand.plugin_remHook.ordinal());
+		writeString(hookID);
+		flush();
+	}
+
+	public boolean user_teleport(String user, double x, double y, double z)
+	{
+		writeInt(ClientCommand.user_teleport.ordinal());
+		writeString(user);
+		writeDouble(x);
+		writeDouble(y);
+		writeDouble(z);
+		flush();
+		return readBool();
+	}
+
+	public boolean user_getPosition(String user, ByRef_double x, ByRef_double y, ByRef_double z, ByRef_float yaw, ByRef_float pitch, ByRef_double stance)
+	{
+		writeInt(ClientCommand.user_getPosition.ordinal());
+		writeString(user);
+		flush();
+		x.value = readDouble();
+		y.value = readDouble();
+		z.value = readDouble();
+		yaw.value = readFloat();
+		pitch.value = readFloat();
+		stance.value = readDouble();
+		return readBool();
+	}
+
+	public boolean user_sethealth(String user, int userHealth)
+	{
+		writeInt(ClientCommand.user_sethealth.ordinal());
+		writeString(user);
+		writeInt(userHealth);
+		flush();
+		return readBool();
+	}
+
+	public boolean chat_sendmsgTo(String user, String msg)
+	{
+		writeInt(ClientCommand.chat_sendmsgTo.ordinal());
+		writeString(user);
+		writeString(msg);
+		flush();
+		return readBool();
+	}
+
+	public boolean chat_sendmsg(String msg)
+	{
+		writeInt(ClientCommand.chat_sendmsg.ordinal());
+		writeString(msg);
+		flush();
+		return readBool();
+	}
+
+	public boolean chat_sendUserlist(String user)
+	{
+		writeInt(ClientCommand.chat_sendUserlist.ordinal());
+		writeString(user);
+		flush();
+		return readBool();
+	}
+
+	public void map_createPickupSpawn(int x, int y, int z, int type, int count, int health, String user)
+	{
+		writeInt(ClientCommand.map_createPickupSpawn.ordinal());
+		writeInt(x);
+		writeInt(y);
+		writeInt(z);
+		writeInt(type);
+		writeInt(count);
+		writeInt(health);
+		writeString(user);
+		flush();
+	}
+
+	public boolean map_setTime(int timeValue)
+	{
+		writeInt(ClientCommand.map_setTime.ordinal());
+		writeInt(timeValue);
+		flush();
+		return readBool();
+	}
+
+	public void map_getSpawn(ByRef_int x, ByRef_int y, ByRef_int z)
+	{
+		writeInt(ClientCommand.map_getSpawn.ordinal());
+		flush();
+		x.value = readInt();
+		y.value = readInt();
+		z.value = readInt();
+	}
+
+	public boolean map_getBlock(int x, int y, int z, ByRef_short type, ByRef_short meta)
+	{
+		writeInt(ClientCommand.map_getBlock.ordinal());
+		writeInt(x);
+		writeInt(y);
+		writeInt(z);
+		flush();
+		type.value = readUnsignedByte();
+		meta.value = readUnsignedByte();
+		return readBool();
+	}
+
+	public boolean map_setBlock(int x, int y, int z, short type, short meta)
+	{
+		writeInt(ClientCommand.map_setBlock.ordinal());
+		writeInt(x);
+		writeInt(y);
+		writeInt(z);
+		writeByte(type);
+		writeByte(meta);
+		flush();
+		return readBool();
+	}
+
+	public void map_saveWholeMap()
+	{
+		writeInt(ClientCommand.map_saveWholeMap.ordinal());
+		flush();
+	}
+
+	public boolean config_has(String name)
+	{
+		writeInt(ClientCommand.config_has.ordinal());
+		writeString(name);
+		flush();
+		return readBool();
+	}
+
+	public int config_iData(String name)
+	{
+		writeInt(ClientCommand.config_iData.ordinal());
+		writeString(name);
+		flush();
+		return readInt();
+	}
+
+	public float config_fData(String name)
+	{
+		writeInt(ClientCommand.config_fData.ordinal());
+		writeString(name);
+		flush();
+		return readFloat();
+	}
+
+	public double config_dData(String name)
+	{
+		writeInt(ClientCommand.config_dData.ordinal());
+		writeString(name);
+		flush();
+		return readDouble();
+	}
+
+	public String config_sData(String name)
+	{
+		writeInt(ClientCommand.config_sData.ordinal());
+		writeString(name);
+		flush();
+		return readString();
+	}
+
+	public boolean config_bData(String name)
+	{
+		writeInt(ClientCommand.config_bData.ordinal());
+		writeString(name);
+		flush();
+		return readBool();
+	}
+
 }
