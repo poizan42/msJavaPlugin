@@ -42,11 +42,27 @@ public class MSJavaPlugin {
 				new MSJavaPlugin(), usePipes, port);
 		mi.runCommandLoop();
 	}
+	
+	public boolean timerTest()
+	{
+		MineserverInterface.getInstance().logger_log(
+				LogType.LOG_INFO, "msJavaPlugin-java", "Timer1000 called!");
+		return false;
+	}
 
-	public void init() throws IOException
+	public void init()
 	{
 		MineserverInterface mi = MineserverInterface.getInstance();
 		mi.logger_log(LogType.LOG_INFO, "msJavaPlugin-java",
 				"msJavaPlugin java side loaded.");
+		try {
+			mi.plugin_addCallback("Timer1000", this, this.getClass().getDeclaredMethod("timerTest"));
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

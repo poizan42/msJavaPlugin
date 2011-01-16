@@ -1,8 +1,11 @@
 #pragma once
 
 #include <string>
+#include <list>
+#include <vector>
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #ifdef WIN32
   #define ssize_t int
@@ -118,15 +121,33 @@ namespace ClientCommand {
 
 typedef ClientCommand::ClientCommandType ClientCommandType;
 
+namespace InterprocTypes {
+  enum InterprocType {
+    int8,int16,int32,int64,floatType,doubleType,boolType,string
+  };
+}
+
+typedef InterprocTypes::InterprocType InterprocType;
+
 namespace ServerCommand
 {
   enum {init = -1, shutdown = -2};
 }
 
+class InterprocComm;
+
+struct CallbackData
+{
+  InterprocComm* ic;
+  int32_t javaFun;
+  std::vector<InterprocType> types;
+};
+
 class InterprocComm
 {
 public:
   InterprocComm(FD_T in, FD_T out);
+  ~InterprocComm();
 
   void writeInt64(int64_t i);
   void writeInt32(int32_t i);
@@ -148,6 +169,9 @@ public:
 
   void handleCommands(void);
 private:
-  FD_T out;  
+  FD_T out;
   FD_T in;
+  std::list<CallbackData*> callbackStructs;
+  static bool InterprocComm::_callbackFun(CallbackData* d, ...);
+  bool doCallback(int32_t javaFun, std::vector<InterprocType> types, va_list args);
 };

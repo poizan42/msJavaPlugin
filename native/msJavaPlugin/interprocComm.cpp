@@ -14,6 +14,15 @@ InterprocComm::InterprocComm(FD_T inArg, FD_T outArg)
   out = outArg;
 }
 
+InterprocComm::~InterprocComm()
+{
+  std::list<CallbackData*>::iterator it;
+  for (it = callbackStructs.begin(); it != callbackStructs.end(); it++)
+  {
+    delete *it;
+  }
+}
+
 void InterprocComm::writeInt64(int64_t i)
 {
   int32_t ih = (int32_t)(i >> 32);
@@ -120,6 +129,53 @@ std::string InterprocComm::readString()
   return s;
 }
 
+bool CALLCONVERSION InterprocComm::_callbackFun(CallbackData* d, ...)
+{
+  va_list args;
+  va_start(args, d);
+  bool retval = d->ic->doCallback(d->javaFun, d->types, args);
+  va_end(args);
+  return retval;
+}
+
+bool InterprocComm::doCallback(int32_t javaFun, std::vector<InterprocType> types, va_list args)
+{
+  //Tell java part to call javaFun
+  writeInt32(javaFun);
+  for (unsigned int i = 0; i < types.size(); i++)
+  {
+    switch (types[i])
+    {
+      case InterprocTypes::int8:
+        writeInt8(va_arg(args, int8_t));
+        break;
+      case InterprocTypes::int16:
+        writeInt16(va_arg(args, int16_t));
+        break;
+      case InterprocTypes::int32:
+        writeInt32(va_arg(args, int32_t));
+        break;
+      case InterprocTypes::int64:
+        writeInt64(va_arg(args, int64_t));
+        break;
+      case InterprocTypes::floatType:
+        writeFloat(va_arg(args, float));
+        break;
+      case InterprocTypes::doubleType:
+        writeDouble(va_arg(args, double));
+        break;
+      case InterprocTypes::boolType:
+        writeBool(va_arg(args, bool));
+        break;
+      case InterprocTypes::string:
+        writeString(std::string(va_arg(args, char*)));
+        break;
+    } 
+  }
+  handleCommands();
+  return readBool();
+}
+
 void InterprocComm::handleCommands(void)
 {
   mineserver_pointer_struct* ms = MSJavaPlugin::get()->getMineserver();
@@ -155,6 +211,31 @@ void InterprocComm::handleCommands(void)
         std::string name = readString();
         void* pointer = (void*)readInt64();
         ms->plugin.setPointer(name.c_str(), pointer);
+        break;
+      }
+      /*The hard stuff: callbacks!
+        The format we receives this from the java part is as follows:
+        string HookID
+        int32 function id
+        int32 argument count
+        int8 type of arg1
+        ...
+        int8 type of argn
+      */
+      case ClientCommand::plugin_addCallback:
+      {
+        std::string hookID = readString();
+        CallbackData* cb = new CallbackData;
+        cb->ic = this;
+        cb->javaFun = readInt32();
+        int argCount = readInt32();
+        cb->types.reserve(argCount);
+        for (int i = 0; i < argCount; i++)
+        {
+          cb->types.push_back((InterprocType)readInt8());
+        }
+        callbackStructs.push_back(cb);
+        ms->plugin.addIdentifiedCallback(hookID.c_str(), cb, _callbackFun);
         break;
       }
 

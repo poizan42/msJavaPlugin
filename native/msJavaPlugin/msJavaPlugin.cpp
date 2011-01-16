@@ -20,7 +20,7 @@
 #define JAVA_CLASS_NAME "msJavaPlugin.MSJavaPlugin"
 #define SOCKET_PORT 38830
 
-PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_init(mineserver_pointer_struct* mineserver)
+PLUGIN_API_EXPORT void CALLCONVERSION msJavaPlugin_init(mineserver_pointer_struct* mineserver)
 {
 	if (mineserver->plugin.getPluginVersion(PLUGIN_NAME) > 0)
 	{
@@ -33,7 +33,7 @@ PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_init(mineserver_pointer_s
     new MSJavaPlugin(mineserver);
 }
 
-PLUGIN_API_EXPORT void CALLCONVERSION hModPluginLoader_shutdown(void)
+PLUGIN_API_EXPORT void CALLCONVERSION msJavaPlugin_shutdown(void)
 {
 	delete MSJavaPlugin::get();
 }

@@ -9,6 +9,8 @@ bool: byte
 java -> native:
 be int32 CommandType
 ... arguments
+(byrefs returned)
+(retval returned)
 
 native -> java:
 be int32 Function
@@ -16,3 +18,7 @@ Function:
   -1: init
   -2: shutdown
 otherwise any registered callback
+
+Typelist:
+length: int32
+Array of bytes identifying types (InterprocType)

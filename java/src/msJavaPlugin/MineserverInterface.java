@@ -3,9 +3,17 @@ package msJavaPlugin;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 public class MineserverInterface {
 	public class ByRef_boolean {public boolean value;}
@@ -19,11 +27,13 @@ public class MineserverInterface {
 	private DataOutputStream outStream;
 	private DataInputStream inStream;
 	private MSJavaPlugin loader;
+	private ArrayList<CallbackInfo> callbacks;
 
 	public MineserverInterface(MSJavaPlugin l, boolean usePipes, int port) throws IOException
 	{
 		instance = this;
-		this.loader = l;
+		callbacks = new ArrayList<CallbackInfo>();
+		loader = l;
 		
 		if (usePipes)
 		{
@@ -42,16 +52,16 @@ public class MineserverInterface {
 			outStream = new DataOutputStream(sock.getOutputStream());
 		}
 	}
-	
+
 	public static MineserverInterface getInstance() {
 		return instance;
 	}
 	
-	public void runCommandLoop() throws IOException
+	public void runCommandLoop()
 	{
 		while (true)
 		{
-			int cmd = inStream.readInt();
+			int cmd = readInt();
 			if (cmd == -1)
 			{
 				loader.init();//init
@@ -63,8 +73,54 @@ public class MineserverInterface {
 				intercom_return();
 				return;
 			}
-			else
-				;//callback
+			else //callback
+			{
+				CallbackInfo cb = callbacks.get(cmd);
+				ArrayList<Object> args = new ArrayList<Object>();
+				for (InterprocType type : cb.getTypes())
+				{
+					switch (type)
+					{
+						case boolType:
+							args.add(readBool());
+							break;
+						case int8:
+							args.add(readByte());
+							break;
+						case int16:
+							args.add(readShort());
+							break;
+						case int32:
+							args.add(readInt());
+							break;
+						case int64:
+							args.add(readLong());
+							break;
+						case floatType:
+							args.add(readFloat());
+							break;
+						case string:
+							args.add(readString());
+							break;
+					}
+				}
+				boolean retval = false;
+				try
+				{
+					retval = (Boolean) cb.getMethod().invoke(cb.getObject(), args.toArray());
+				}
+				catch (Throwable e)
+				{
+					logger_log(LogType.LOG_CRITICAL, "msJavaPlugin-java", 
+							"An unhandled exception was thrown in a callback function.");
+					PrintWriter pw = new PrintWriter(new StringWriter());
+					e.printStackTrace(pw);
+					logger_log(LogType.LOG_CRITICAL, "msJavaPlugin-java", pw.toString());
+				}
+				_intercom_return();
+				writeBool(retval);
+				flush();
+			}
 		}
 	}
 	
@@ -198,6 +254,27 @@ public class MineserverInterface {
 		writeString(name);
 		writeLong(pointer);
 		flush();
+	}
+	
+	public void plugin_addCallback(String hookID, Object obj, Method method)
+	{
+		/*
+			string HookID
+			int32 function id
+			int32 argument count
+			int8 type of arg1
+			...
+			int8 type of argn
+		 */
+		CallbackInfo cb = new CallbackInfo(obj, method);
+		writeInt(ClientCommand.plugin_addCallback.ordinal());
+		writeString(hookID);
+		writeInt(cb.getIndex()); //function id
+		writeInt(method.getParameterTypes().length); //argument count
+		//argument types
+		for (InterprocType type : cb.getTypes())
+			writeByte((short)type.ordinal());
+		callbacks.add(cb);
 	}
 	
 	//*************** codegen.py output below ***************
