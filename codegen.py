@@ -5,6 +5,7 @@ ignoreCmds = frozenset({
 	('logger', 'log'),
 	('plugin', 'getPointer'),
 	('plugin', 'setPointer'),
+	('plugin', 'addCallback'),
 })
 
 id = lambda x:x

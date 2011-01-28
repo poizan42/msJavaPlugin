@@ -238,6 +238,11 @@ void InterprocComm::handleCommands(void)
         ms->plugin.addIdentifiedCallback(hookID.c_str(), cb, _callbackFun);
         break;
       }
+      case ClientCommand::plugin_doUntilTrue:
+      {
+        std::string hookID = readString();
+
+      }
 
       //*************** codegen.py output below ***************
       case ClientCommand::plugin_hasPluginVersion:

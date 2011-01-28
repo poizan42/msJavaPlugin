@@ -28,6 +28,29 @@ public class MineserverInterface {
 	private DataInputStream inStream;
 	private MSJavaPlugin loader;
 	private ArrayList<CallbackInfo> callbacks;
+	
+	private static Dictionary<Class<?>, InterprocType> typemap;
+	
+	{
+		typemap = new Hashtable<Class<?>, InterprocType>();
+		typemap.put(byte.class, InterprocType.int8);
+		typemap.put(short.class, InterprocType.int16);
+		typemap.put(int.class, InterprocType.int32);
+		typemap.put(long.class, InterprocType.int64);
+		typemap.put(float.class, InterprocType.floatType);
+		typemap.put(double.class, InterprocType.doubleType);
+		typemap.put(boolean.class, InterprocType.boolType);
+		
+		typemap.put(Byte.class, InterprocType.int8);
+		typemap.put(Short.class, InterprocType.int16);
+		typemap.put(Integer.class, InterprocType.int32);
+		typemap.put(Long.class, InterprocType.int64);
+		typemap.put(Float.class, InterprocType.floatType);
+		typemap.put(Double.class, InterprocType.doubleType);
+		typemap.put(Boolean.class, InterprocType.boolType);
+		
+		typemap.put(String.class, InterprocType.string);
+	}
 
 	public MineserverInterface(MSJavaPlugin l, boolean usePipes, int port) throws IOException
 	{
@@ -117,9 +140,7 @@ public class MineserverInterface {
 					e.printStackTrace(pw);
 					logger_log(LogType.LOG_CRITICAL, "msJavaPlugin-java", pw.toString());
 				}
-				_intercom_return();
-				writeBool(retval);
-				flush();
+				intercom_return(retval);
 			}
 		}
 	}
@@ -177,6 +198,66 @@ public class MineserverInterface {
 	private void writeDouble(Double v) {
 		try {outStream.writeDouble(v);}catch (IOException e){IOError();}}
 	
+	private void writeVarArgs(Object[] args, InterprocType[] types)
+	{
+		if (args.length != types.length)
+			throw new IllegalArgumentException("args and types must have same number of elements");
+		for (int i = 0; i < args.length; i++)
+		{
+			switch (types[i])
+			{
+				case boolType:
+					writeBool((Boolean)args[i]);
+				case int8:
+					writeByte((Byte)args[i]);
+				case int16:
+					writeShort((Short)args[i]);
+				case int32:
+					writeInt((Integer)args[i]);
+				case int64:
+					writeLong((Long)args[i]);
+				case floatType:
+					writeFloat((Float)args[i]);
+				case doubleType:
+					writeDouble((Double)args[i]);
+				case string:
+					writeString((String)args[i]);
+			}
+		}
+	}
+
+	private void writeArgTypes(InterprocType[] types) {
+		for (InterprocType type : types)
+			writeByte((short)type.ordinal());
+	}
+
+	static InterprocType[] getArgTypesFromClasses(Class<?>[] args)
+	{
+		InterprocType[] types = new InterprocType[args.length];
+		for (int i=0; i < args.length; i++)
+		{
+			InterprocType type = typemap.get(args[i]);
+			if (type == null)
+				throw new IllegalArgumentException("Unsupported type: "+args[i].getName());
+			types[i] = type;
+		}
+		return types;
+	}
+	
+	static private InterprocType[] getArgTypes(Object[] args)
+	{
+		InterprocType[] types = new InterprocType[args.length];
+		for (int i=0; i < args.length; i++)
+		{
+			Class<?> cls = args[i].getClass();
+			InterprocType type = typemap.get(cls);
+			if (type == null)
+				throw new IllegalArgumentException("Unsupported type: "+cls.getName());
+			types[i] = type;
+		}
+		return types;
+	}
+	
 	private void _intercom_return()
 	{
 		writeInt(ClientCommand.intercom_return.ordinal());
@@ -185,6 +266,13 @@ public class MineserverInterface {
 	public void intercom_return()
 	{
 		_intercom_return();
+		flush();
+	}
+
+	public void intercom_return(boolean retval)
+	{
+		_intercom_return();
+		writeBool(retval);
 		flush();
 	}
 	
@@ -272,11 +360,36 @@ public class MineserverInterface {
 		writeInt(cb.getIndex()); //function id
 		writeInt(method.getParameterTypes().length); //argument count
 		//argument types
-		for (InterprocType type : cb.getTypes())
-			writeByte((short)type.ordinal());
+		writeArgTypes(cb.getTypes());
 		callbacks.add(cb);
 	}
 	
+	public boolean plugin_doUntilTrue(String hookID, Object[] args)
+	{
+		InterprocType[] types = getArgTypes(args);
+		writeInt(ClientCommand.plugin_doUntilTrue.ordinal());
+		writeArgTypes(types);
+		writeVarArgs(args, types);
+		return readBool();
+	}
+	
+	public boolean plugin_doUntilFalse(String hookID, Object[] args)
+	{
+		InterprocType[] types = getArgTypes(args);
+		writeInt(ClientCommand.plugin_doUntilFalse.ordinal());
+		writeArgTypes(types);
+		writeVarArgs(args, types);
+		return readBool();
+	}
+	
+	public void plugin_doAll(String hookID, Object[] args)
+	{
+		InterprocType[] types = getArgTypes(args);
+		writeInt(ClientCommand.plugin_doAll.ordinal());
+		writeArgTypes(types);
+		writeVarArgs(args, types);
+	}
+
 	//*************** codegen.py output below ***************
 	public boolean plugin_hasPluginVersion(String name)
 	{
@@ -351,10 +464,6 @@ public class MineserverInterface {
 //struct="plugin", ret="bool", name="hasCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
 //Unknown argument type: "void*" for argument "function". Not generating code!
 
-//  void (*addCallback)          (const char* hookID, void* function);
-//struct="plugin", ret="void", name="addCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
-//Unknown argument type: "void*" for argument "function". Not generating code!
-
 //  void (*addIdentifiedCallback)(const char* hookID, void* identifier, void* function);
 //struct="plugin", ret="void", name="addIdentifiedCallback", args=[('const char*', 'hookID'), ('void*', 'identifier'), ('void*', 'function')]
 //Unknown argument type: "void*" for argument "identifier". Not generating code!
@@ -362,18 +471,6 @@ public class MineserverInterface {
 //  void (*remCallback)          (const char* hookID, void* function);
 //struct="plugin", ret="void", name="remCallback", args=[('const char*', 'hookID'), ('void*', 'function')]
 //Unknown argument type: "void*" for argument "function". Not generating code!
-
-//  bool (*doUntilTrue)          (const char* hookID, ...);
-//struct="plugin", ret="bool", name="doUntilTrue", args=[('const char*', 'hookID'), ('', '...')]
-//Unknown argument type: "" for argument "...". Not generating code!
-
-//  bool (*doUntilFalse)         (const char* hookID, ...);
-//struct="plugin", ret="bool", name="doUntilFalse", args=[('const char*', 'hookID'), ('', '...')]
-//Unknown argument type: "" for argument "...". Not generating code!
-
-//  void (*doAll)                (const char* hookID, ...);
-//struct="plugin", ret="void", name="doAll", args=[('const char*', 'hookID'), ('', '...')]
-//Unknown argument type: "" for argument "...". Not generating code!
 
 	public boolean user_teleport(String user, double x, double y, double z)
 	{

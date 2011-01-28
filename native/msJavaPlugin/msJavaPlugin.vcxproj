@@ -10,10 +10,17 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="interprocComm.h" />
+    <ClInclude Include="msJavaPlugin.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="interprocComm.cpp" />
+    <ClCompile Include="msJavaPlugin.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{716C9E38-4043-4D42-A406-9C586DBBE4A1}</ProjectGuid>
+    <ProjectGuid>{DF52A480-FD9B-407A-81FA-998C8CADF6BF}</ProjectGuid>
     <RootNamespace>msJavaPlugin</RootNamespace>
-    <ProjectName>msJavaPlugin</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -65,14 +72,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="msJavaPlugin.h" />
-    <ClInclude Include="interprocComm.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="msJavaPlugin.cpp" />
-    <ClCompile Include="interprocComm.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
